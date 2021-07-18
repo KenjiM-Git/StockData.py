@@ -1,0 +1,145 @@
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+
+base_page = 'https://www.hl.co.uk/shares/stock-market-summary/ftse-all-share'
+page = requests.get(base_page)
+
+soup = BeautifulSoup(page.content, 'html.parser')
+
+ftseAllShare_HL = soup.find("table", attrs={"class": "stockTable", "summary": "Market index"})
+#print(ftseAllShare_HL)
+
+
+#headingsPercentages = []
+#for th in ftseAllShare_HL.thead.tr.find_all("th"):
+#    headingsPercentages.append(th.text.replace('\n', '').strip())
+
+#print(headingsOverview)
+
+
+links = ['']
+for link in ftseAllShare_HL.tbody.tr.find_all('a', href=True):
+    links.append(link.get('href'))
+unique_links = list(dict.fromkeys(links))
+#print(unique_links)
+
+pageLinks = []
+for i in unique_links:
+    pageLink = base_page+str(i)
+    pageLinks.append(pageLink)
+#print(pageLinks)
+
+
+count = 0
+for tableLinks in pageLinks:
+    page = requests.get(tableLinks)
+
+    soup = BeautifulSoup(page.content, 'html.parser')
+
+    ftseAllShare_HL = soup.find("table", attrs={"class": "stockTable", "summary": "Market index"})
+    # print(ftseAllShare_HL)
+
+
+    rowTicker = []
+    rowName = []
+    for tr in ftseAllShare_HL.tbody.find_all("tr"):
+
+        rowData = []
+        for td in tr.find_all("td"):
+            rowData.append(td.text.replace('\n', '').strip())
+
+        rowTicker.append(rowData[0])
+        rowName.append(rowData[1])
+
+
+    #print(rowPrice)
+    count += 1
+
+    if count == 1:
+        tickerLookup1 = {
+            'Ticker': rowTicker,
+            'Name': rowName
+        }
+        tickerLookup1 = pd.DataFrame(tickerLookup1)
+        tickerLookup1 = tickerLookup1[2:-2]
+        tickerLookup1 = tickerLookup1.set_index('Ticker')
+    elif count == 2:
+        tickerLookup2 = {
+            'Ticker': rowTicker,
+            'Name': rowName
+        }
+        tickerLookup2 = pd.DataFrame(tickerLookup2)
+        tickerLookup2 = tickerLookup2[2:-2]
+        tickerLookup2 = tickerLookup2.set_index('Ticker')
+    elif count == 3:
+        tickerLookup3 = {
+            'Ticker': rowTicker,
+            'Name': rowName
+        }
+        tickerLookup3 = pd.DataFrame(tickerLookup3)
+        tickerLookup3 = tickerLookup3[2:-2]
+        tickerLookup3 = tickerLookup3.set_index('Ticker')
+    elif count == 4:
+        tickerLookup4 = {
+            'Ticker': rowTicker,
+            'Name': rowName
+        }
+        tickerLookup4 = pd.DataFrame(tickerLookup4)
+        tickerLookup4 = tickerLookup4[2:-2]
+        tickerLookup4 = tickerLookup4.set_index('Ticker')
+    elif count == 5:
+        tickerLookup5 = {
+            'Ticker': rowTicker,
+            'Name': rowName
+        }
+        tickerLookup5 = pd.DataFrame(tickerLookup5)
+        tickerLookup5 = tickerLookup5[2:-2]
+        tickerLookup5 = tickerLookup5.set_index('Ticker')
+    elif count == 6:
+        tickerLookup6 = {
+            'Ticker': rowTicker,
+            'Name': rowName
+        }
+        tickerLookup6 = pd.DataFrame(tickerLookup6)
+        tickerLookup6 = tickerLookup6[2:-2]
+        tickerLookup6 = tickerLookup6.set_index('Ticker')
+
+    #print(tableName)
+
+mergedTable = pd.concat([tickerLookup1, tickerLookup2, tickerLookup3, tickerLookup4, tickerLookup5, tickerLookup6])
+
+#print(mergedTable)
+
+
+
+
+
+
+
+# Create excel file with correct formats
+import xlsxwriter
+writer = pd.ExcelWriter('ftseAllShare Lookup.xlsx', engine='xlsxwriter')
+mergedTable.to_excel(writer, sheet_name='TickerLookup', index = True)
+
+
+font_color = '#000000'
+background_color = '#ffffff'
+
+string_template = writer.book.add_format(
+        {
+            'font_color': font_color,
+            'bg_color': background_color,
+            'border': 1
+        }
+    )
+
+column_formats = {
+    'A': ['Ticker', string_template],
+    'B': ['Name', string_template],
+}
+
+for column in column_formats.keys():
+    writer.sheets['TickerLookup'].set_column(f'{column}:{column}', 25, column_formats[column][1])
+    writer.sheets['TickerLookup'].write(f'{column}1', column_formats[column][0], column_formats[column][1])
+writer.save()

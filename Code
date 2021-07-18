@@ -1,0 +1,485 @@
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+
+# Go over tickers, add .L and then add to base_page and click link
+import openpyxl
+
+wb = openpyxl.load_workbook(r"C:\Users\krmar\OneDrive\Documents\Coding\webScrape\ftseAllShare Lookup.xlsx")
+ws = wb['TickerLookup']
+
+tickers = []
+
+#for row in ws.iter_rows("A{}:A{}".format(ws.min_row, ws.max_row)):
+for row in range(2,ws.max_row+1):
+    for column in "A":
+        cell_name = "{}{}".format(column, row)
+        tickers.append(ws[cell_name].value)
+
+tickers = [t.replace('.','').strip() for t in tickers]
+tickers = [(str(t) + '.L') for t in tickers]
+#print(tickers)
+
+import yfinance as yf
+import math
+import numpy as np
+
+# Summary
+names = []
+sector = []
+industry = []
+exchange = []
+ebitdaMargins = []
+profitMargins = []
+grossMargins = []
+operatingCashflow = []
+revenueGrowth = []
+operatingMargins = []
+ebitda = []
+grossProfits = []
+freeCashflow = []
+earningsGrowth = []
+currentRatio = []
+returnOnAssets = []
+debtToEquity = []
+returnOnEquity = []
+totalCash = []
+totalDebt = []
+totalRevenue = []
+totalCashPerShare = []
+revenuePerShare = []
+quickRatio = []
+quoteType = []
+enterpriseToRevenue = []
+#beta3Year = []
+enterpriseToEbitda = []
+#WeekChange52 = []
+forwardEps = []
+sharesOutstanding = []
+#totalAssets = []
+bookValue = []
+#sharesShort = []
+heldPercentInstitutions = []
+netIncomeToCommon = []
+trailingEps = []
+#lastDividendValue = []
+priceToBook = []
+heldPercentInsiders = []
+#shortRatio = []
+floatShares = []
+beta = []
+enterpriseValue = []
+#threeYearAverageReturn = []
+#lastSplitDate = []
+#lastSplitFactor = []
+#lastDividendDate = []
+priceToSalesTrailing12Months = []
+#pegRatio = []
+#ytdReturn = []
+forwardPE = []
+#sharesShortPriorMonth = []
+#impliedSharesOutstanding = []
+#fiveYearAverageReturn = []
+twoHundredDayAverage = []
+trailingAnnualDividendYield = []
+payoutRatio = []
+averageDailyVolume10Day = []
+#volume24Hr = []
+regularMarketPreviousClose = []
+regularMarketPrice = []
+fiftyDayAverage = []
+trailingAnnualDividendRate = []
+averageVolume10days = []
+dividendRate = []
+#exDividendDate = []
+trailingPE = []
+regularMarketVolume = []
+marketCap = []
+averageVolume = []
+fiftyTwoWeekHigh = []
+fiveYearAvgDividendYield = []
+fiftyTwoWeekLow = []
+dividendYield = []
+dayHigh = []
+dayLow = []
+
+
+
+Stocks_Data = pd.DataFrame()
+Sustainability_Data = pd.DataFrame()
+
+for ticker in tickers:
+
+    print(ticker)
+
+    # 1. Summary tab
+
+    stock = yf.Ticker(ticker)
+    #print(stock.info.keys())
+
+    names.append(ticker)
+    sector.append(stock.info.get("sector"))
+    industry.append(stock.info.get("industry"))
+    exchange.append(stock.info.get("exchange"))
+    ebitdaMargins.append(stock.info.get("ebitdaMargins"))
+    profitMargins.append(stock.info.get("profitMargins"))
+    grossMargins.append(stock.info.get("grossMargins"))
+    operatingCashflow.append(stock.info.get("operatingCashflow"))
+    revenueGrowth.append(stock.info.get("revenueGrowth"))
+    operatingMargins.append(stock.info.get("operatingMargins"))
+    ebitda.append(stock.info.get("ebitda"))
+    grossProfits.append(stock.info.get("grossProfits"))
+    freeCashflow.append(stock.info.get("freeCashflow"))
+    earningsGrowth.append(stock.info.get("earningsGrowth"))
+    currentRatio.append(stock.info.get("currentRatio"))
+    returnOnAssets.append(stock.info.get("returnOnAssets"))
+    debtToEquity.append(stock.info.get("debtToEquity"))
+    returnOnEquity.append(stock.info.get("returnOnEquity"))
+    totalCash.append(stock.info.get("totalCash"))
+    totalDebt.append(stock.info.get("totalDebt"))
+    totalRevenue.append(stock.info.get("totalRevenue"))
+    totalCashPerShare.append(stock.info.get("totalCashPerShare"))
+    revenuePerShare.append(stock.info.get("revenuePerShare"))
+    quickRatio.append(stock.info.get("quickRatio"))
+    quoteType.append(stock.info.get("quoteType"))
+    enterpriseToRevenue.append(stock.info.get("enterpriseToRevenue"))
+    #beta3Year.append(stock.info.get("beta3Year"))
+    enterpriseToEbitda.append(stock.info.get("enterpriseToEbitda"))
+    #WeekChange52.append(stock.info.get("52WeekChange"))
+    forwardEps.append(stock.info.get("forwardEps"))
+    sharesOutstanding.append(stock.info.get("sharesOutstanding"))
+    #totalAssets.append(stock.info.get("totalAssets"))
+    bookValue.append(stock.info.get("bookValue"))
+    #sharesShort.append(stock.info.get("sharesShort"))
+    heldPercentInstitutions.append(stock.info.get("heldPercentInstitutions"))
+    netIncomeToCommon.append(stock.info.get("netIncomeToCommon"))
+    trailingEps.append(stock.info.get("trailingEps"))
+    #lastDividendValue.append(stock.info.get("lastDividendValue"))
+    priceToBook.append(stock.info.get("priceToBook"))
+    heldPercentInsiders.append(stock.info.get("heldPercentInsiders"))
+    #shortRatio.append(stock.info.get("shortRatio"))
+    floatShares.append(stock.info.get("floatShares"))
+    beta.append(stock.info.get("beta"))
+    enterpriseValue.append(stock.info.get("enterpriseValue"))
+    #threeYearAverageReturn.append(stock.info.get("threeYearAverageReturn"))
+#    lastSplitDate.append(stock.info.get("lastSplitDate"))
+#    lastSplitFactor.append(stock.info.get("lastSplitFactor"))
+#    lastDividendDate.append(stock.info.get("lastDividendDate"))
+    priceToSalesTrailing12Months.append(stock.info.get("priceToSalesTrailing12Months"))
+    #pegRatio.append(stock.info.get("pegRatio"))
+    #ytdReturn.append(stock.info.get("ytdReturn"))
+    forwardPE.append(stock.info.get("forwardPE"))
+    #sharesShortPriorMonth.append(stock.info.get("sharesShortPriorMonth"))
+    #impliedSharesOutstanding.append(stock.info.get("impliedSharesOutstanding"))
+    #fiveYearAverageReturn.append(stock.info.get("fiveYearAverageReturn"))
+    twoHundredDayAverage.append(stock.info.get("twoHundredDayAverage"))
+    trailingAnnualDividendYield.append(stock.info.get("trailingAnnualDividendYield"))
+    payoutRatio.append(stock.info.get("payoutRatio"))
+    averageDailyVolume10Day.append(stock.info.get("averageDailyVolume10Day"))
+    #volume24Hr.append(stock.info.get("volume24Hr"))
+    regularMarketPreviousClose.append(stock.info.get("regularMarketPreviousClose"))
+    regularMarketPrice.append(stock.info.get("regularMarketPrice"))
+    fiftyDayAverage.append(stock.info.get("fiftyDayAverage"))
+    trailingAnnualDividendRate.append(stock.info.get("trailingAnnualDividendRate"))
+    averageVolume10days.append(stock.info.get("averageVolume10days"))
+    dividendRate.append(stock.info.get("dividendRate"))
+#    exDividendDate.append(stock.info.get("exDividendDate"))
+    trailingPE.append(stock.info.get("trailingPE"))
+    regularMarketVolume.append(stock.info.get("regularMarketVolume"))
+    marketCap.append(stock.info.get("marketCap"))
+    averageVolume.append(stock.info.get("averageVolume"))
+    fiftyTwoWeekHigh.append(stock.info.get("fiftyTwoWeekHigh"))
+    fiveYearAvgDividendYield.append(stock.info.get("fiveYearAvgDividendYield"))
+    fiftyTwoWeekLow.append(stock.info.get("fiftyTwoWeekLow"))
+    dividendYield.append(stock.info.get("dividendYield"))
+    dayHigh.append(stock.info.get("dayHigh"))
+    dayLow.append(stock.info.get("dayLow"))
+
+
+
+    sustainability = stock.sustainability
+    #print(sustainability)
+
+    if sustainability is None:
+        None
+    elif len(sustainability) == 0:
+        None
+    else:
+        sustainability = sustainability.T
+        # Sustainability
+        sustainability = sustainability[['totalEsg', 'percentile', 'environmentScore', 'socialScore', 'governanceScore', 'esgPerformance', 'peerCount', 'peerGroup', 'palmOil', 'controversialWeapons', 'gambling', 'nuclear', 'furLeather', 'alcoholic', 'gmo', 'catholic', 'animalTesting',
+             'tobacco', 'coal', 'pesticides', 'adult', 'smallArms', 'militaryContract', 'highestControversy']]
+        sustainability['Name'] = ticker
+        Sustainability_Data = Sustainability_Data.append(sustainability, sort=False)
+
+
+
+
+dict = {
+    'Name': names,
+    'sector': sector,
+    'industry': industry,
+    'exchange': exchange,
+    'quoteType': quoteType,
+    ###
+    'marketCap': marketCap,
+    'beta': beta,
+    'regularMarketPrice': regularMarketPrice,
+    'regularMarketPreviousClose': regularMarketPreviousClose,
+    'dayHigh': dayHigh,
+    'dayLow': dayLow,
+    'currentRatio': currentRatio,
+    'debtToEquity': debtToEquity,
+    'returnOnAssets': returnOnAssets,
+    'returnOnEquity': returnOnEquity,
+    'quickRatio': quickRatio,
+    'forwardPE': forwardPE,
+    'trailingPE': trailingPE,
+    #'pegRatio': pegRatio,
+    'forwardEps': forwardEps,
+    'trailingEps': trailingEps,
+    'priceToBook': priceToBook,
+    'priceToSalesTrailing12Months': priceToSalesTrailing12Months,
+    'enterpriseToRevenue': enterpriseToRevenue,
+    'enterpriseToEbitda': enterpriseToEbitda,
+    #'beta3Year': beta3Year,
+    'payoutRatio': payoutRatio,
+    ###
+    'totalDebt': totalDebt,
+    #'totalAssets': totalAssets,
+    'bookValue': bookValue,
+    'netIncomeToCommon': netIncomeToCommon,
+    'totalCash': totalCash,
+    'totalRevenue': totalRevenue,
+    'totalCashPerShare': totalCashPerShare,
+    'revenuePerShare': revenuePerShare,
+    'operatingCashflow': operatingCashflow,
+    'freeCashflow': freeCashflow,
+    'ebitda': ebitda,
+    'grossProfits': grossProfits,
+    'enterpriseValue': enterpriseValue,
+    ###
+    'ebitdaMargins': ebitdaMargins,
+    'profitMargins': profitMargins,
+    'grossMargins': grossMargins,
+    'operatingMargins': operatingMargins,
+    'revenueGrowth': revenueGrowth,
+    'earningsGrowth': earningsGrowth,
+    ###
+    'fiftyTwoWeekHigh': fiftyTwoWeekHigh,
+    'fiftyTwoWeekLow': fiftyTwoWeekLow,
+    #'WeekChange52': WeekChange52,
+    #'ytdReturn': ytdReturn,
+    'fiftyDayAverage': fiftyDayAverage,
+    #'threeYearAverageReturn': threeYearAverageReturn,
+    #'fiveYearAverageReturn': fiveYearAverageReturn,
+    'twoHundredDayAverage': twoHundredDayAverage,
+    ###
+    'sharesOutstanding': sharesOutstanding,
+    #'sharesShort': sharesShort,
+    #'shortRatio': shortRatio,
+    #'sharesShortPriorMonth': sharesShortPriorMonth,
+    #'impliedSharesOutstanding': impliedSharesOutstanding,
+    'floatShares': floatShares,
+    'heldPercentInstitutions': heldPercentInstitutions,
+    'heldPercentInsiders': heldPercentInsiders,
+    #'lastSplitDate': lastSplitDate,
+    #'lastSplitFactor': lastSplitFactor,
+    #'lastDividendDate': lastDividendDate,
+    #'lastDividendValue': lastDividendValue,
+    'trailingAnnualDividendRate': trailingAnnualDividendRate,
+    'trailingAnnualDividendYield': trailingAnnualDividendYield,
+    'fiveYearAvgDividendYield': fiveYearAvgDividendYield,
+    'dividendRate': dividendRate,
+    'dividendYield': dividendYield,
+    #'exDividendDate': exDividendDate,
+    ###
+    'averageVolume': averageVolume,
+    'averageDailyVolume10Day': averageDailyVolume10Day,
+    'averageVolume10days': averageVolume10days,
+    #'volume24Hr': volume24Hr,
+    'regularMarketVolume': regularMarketVolume
+}
+#print(dict)
+Stocks_Data = pd.DataFrame(dict)
+#Stocks_Data = Stocks_Data.reset_index()
+Stocks_Data = Stocks_Data.set_index('Name')
+#print(Stocks_Data)
+# Price Increase/Decrease indicator?
+
+Stocks_Data['PriceChangeInd'] = (Stocks_Data['regularMarketPrice']>Stocks_Data['regularMarketPreviousClose']).astype(int)
+
+
+
+
+Sustainability_Data = Sustainability_Data.reset_index()
+Sustainability_Data = Sustainability_Data.set_index('Name')
+#print(Sustainability_Data)
+
+
+
+
+
+
+
+# Create excel file with correct formats
+import xlsxwriter
+writer = pd.ExcelWriter('YF Stock Data.xlsx', engine='xlsxwriter')
+Stocks_Data.to_excel(writer, sheet_name='StocksData', index = True)
+Sustainability_Data.to_excel(writer, sheet_name='Sustainability', index = True)
+
+
+
+font_color = '#000000'
+background_color = '#ffffff'
+
+string_template = writer.book.add_format(
+        {
+            'font_color': font_color,
+            'bg_color': background_color,
+            'border': 1
+        }
+    )
+currency_template = writer.book.add_format(
+        {
+            'num_format':'£0.00',
+            'font_color': font_color,
+            'bg_color': background_color,
+            'border': 1
+        }
+    )
+integer_template = writer.book.add_format(
+        {
+            'num_format':'0',
+            'font_color': font_color,
+            'bg_color': background_color,
+            'border': 1
+        }
+    )
+float_template = writer.book.add_format(
+        {
+            'num_format':'0.0000',
+            'font_color': font_color,
+            'bg_color': background_color,
+            'border': 1
+        }
+    )
+percent_template = writer.book.add_format(
+        {
+            'num_format':'0.00%',
+            'font_color': font_color,
+            'bg_color': background_color,
+            'border': 1
+        }
+    )
+time_template = writer.book.add_format(
+    {
+            'num_format':'hh:mm',
+            'font_color': font_color,
+            'bg_color': background_color,
+            'border': 1
+    }
+)
+date_template = writer.book.add_format(
+    {
+            'num_format':'dd/mm/yyyy',
+            'font_color': font_color,
+            'bg_color': background_color,
+            'border': 1
+    }
+)
+
+
+
+Stocks_Data_Formats = {
+    'A': ['Name', string_template],
+    'B': ['sector', string_template],
+    'C': ['industry', string_template],
+    'D': ['exchange', string_template],
+    'E': ['quoteType', string_template],
+    ###
+    'F': ['marketCap', currency_template],
+    'G': ['beta', float_template],
+    'H': ['regularMarketPrice', float_template],
+    'I': ['regularMarketPreviousClose', float_template],
+    'J': ['dayHigh', currency_template],
+    'K': ['dayLow', currency_template],
+    'L': ['currentRatio', float_template],
+    'M': ['debtToEquity', float_template],
+    'N': ['returnOnAssets', float_template],
+    'O': ['returnOnEquity', float_template],
+    'P': ['quickRatio', float_template],
+    'Q': ['forwardPE', float_template],
+    'R': ['trailingPE', float_template],
+    #'S': ['pegRatio', float_template],
+    'S': ['forwardEps', float_template],
+    'T': ['trailingEps', float_template],
+    'U': ['priceToBook', float_template],
+    'V': ['priceToSalesTrailing12Months', float_template],
+    'W': ['enterpriseToRevenue', float_template],
+    'X': ['enterpriseToEbitda', float_template],
+    #'Z': ['beta3Year', float_template],
+    'Y': ['payoutRatio', float_template],
+    ###
+    'Z': ['totalDebt', currency_template],
+    #'AC': ['totalAssets', currency_template],
+    'AA': ['bookValue', currency_template],
+    'AB': ['netIncomeToCommon', currency_template],
+    'AC': ['totalCash', currency_template],
+    'AD': ['totalRevenue', currency_template],
+    'AE': ['totalCashPerShare', currency_template],
+    'AF': ['revenuePerShare', currency_template],
+    'AG': ['operatingCashflow', currency_template],
+    'AH': ['freeCashflow', currency_template],
+    'AI': ['ebitda', currency_template],
+    'AJ': ['grossProfits', currency_template],
+    'AK': ['enterpriseValue', currency_template],
+    ###
+    'AL': ['ebitdaMargins', percent_template],
+    'AM': ['profitMargins', percent_template],
+    'AN': ['grossMargins', percent_template],
+    'AO': ['operatingMargins', percent_template],
+    'AP': ['revenueGrowth', percent_template],
+    'AQ': ['earningsGrowth', percent_template],
+    ###
+    'AR': ['fiftyTwoWeekHigh', currency_template],
+    'AS': ['fiftyTwoWeekLow', currency_template],
+    #'AW': ['WeekChange52', percent_template],
+    #'AX': ['ytdReturn', percent_template],
+    'AT': ['fiftyDayAverage', float_template],
+    #'AZ': ['threeYearAverageReturn', percent_template],
+    #'BA': ['fiveYearAverageReturn', percent_template],
+    'AU': ['twoHundredDayAverage', float_template],
+    ###
+    'AV': ['sharesOutstanding', integer_template],
+    #'AW': ['sharesShort', integer_template],
+    #'AX': ['shortRatio', integer_template],
+    #'AY': ['sharesShortPriorMonth', integer_template],
+    #'BG': ['impliedSharesOutstanding', integer_template],
+    'AW': ['floatShares', integer_template],
+    'AX': ['heldPercentInstitutions', percent_template],
+    'AY': ['heldPercentInsiders', percent_template],
+    #'BK': ['lastSplitDate', date_template],
+    #'BL': ['lastSplitFactor', string_template],
+    #'BM': ['lastDividendDate', date_template],
+    #'BK': ['lastDividendValue', currency_template],
+    'AZ': ['trailingAnnualDividendRate', float_template],
+    'BA': ['trailingAnnualDividendYield', percent_template],
+    'BB': ['fiveYearAvgDividendYield', float_template],
+    'BC': ['dividendRate', percent_template],
+    'BD': ['dividendYield', float_template],
+    #'BT': ['exDividendDate', date_template],
+    ###
+    'BE': ['averageVolume', integer_template],
+    'BF': ['averageDailyVolume10Day', integer_template],
+    'BG': ['averageVolume10days', integer_template],
+    #'BT': ['volume24Hr', integer_template],
+    'BH': ['regularMarketVolume', integer_template],
+    ###
+    'BI': ['PriceChangeInd', integer_template]
+}
+for column in Stocks_Data_Formats.keys():
+    writer.sheets['StocksData'].set_column(f'{column}:{column}', 25, Stocks_Data_Formats[column][1])
+    writer.sheets['StocksData'].write(f'{column}1', Stocks_Data_Formats[column][0], Stocks_Data_Formats[column][1])
+writer.save()
+

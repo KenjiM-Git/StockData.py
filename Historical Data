@@ -1,0 +1,80 @@
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+import numpy as np
+
+# Go over tickers, add .L and then add to base_page and click link
+import openpyxl
+
+wb = openpyxl.load_workbook(r"C:\Users\krmar\OneDrive\Documents\Coding\webScrape\ftseAllShare Lookup.xlsx")
+ws = wb['TickerLookup']
+
+tickers = []
+
+#for row in ws.iter_rows("A{}:A{}".format(ws.min_row, ws.max_row)):
+for row in range(2,ws.max_row+1):
+    for column in "A":
+        cell_name = "{}{}".format(column, row)
+        tickers.append(ws[cell_name].value)
+
+tickers = [t.replace('.','').strip() for t in tickers]
+tickers = [(str(t) + '.L') for t in tickers]
+#print(tickers)
+
+import yfinance as yf
+import datetime
+import time
+from dateutil.relativedelta import relativedelta
+
+start = datetime.datetime.now() - relativedelta(years=5)
+end = datetime.datetime.now()
+
+
+# Quick and easy way??
+#data = yf.download("AMZN AAPL GOOG", start="2017-01-01",
+#                    end="2017-04-30", group_by='tickers')
+
+
+
+Stocks_YF = pd.DataFrame()
+
+
+for ticker in tickers:
+    print(ticker)
+
+    # 2. Historical Data
+
+    stock = []
+    stock = yf.download(ticker, start=start, end=end, progress=False)
+
+    if len(stock) == 0:
+        None
+    else:
+        #stock['Name'] = ticker
+        #print(stock)
+        stock[f'Close-{ticker}'] = stock['Close']
+        stock[f'High-{ticker}'] = stock['High']
+        stock[f'Low-{ticker}'] = stock['Low']
+        stock[f'Volume-{ticker}'] = stock['Volume']
+        stock.drop(['Open', 'High', 'Low', 'Adj Close', 'Volume'], axis=1, inplace=True)
+        #Stocks_YF = Stocks_YF.append(stock, sort=False)
+        #print(stock.columns)
+        Stocks_YF = pd.concat([Stocks_YF, stock], axis=1)
+        #print(Stocks_YF)
+
+        Stocks_YF[f'LogReturn-{ticker}'] = np.log(Stocks_YF.Close) - np.log(Stocks_YF.Close.shift(1))
+        #print(Stocks_YF.columns)
+        Stocks_YF.drop('Close', axis=1, inplace=True)
+        #print(Stocks_YF)
+
+
+#print(Stocks_YF)
+
+
+
+# Create excel file with correct formats
+import xlsxwriter
+writer = pd.ExcelWriter('Stocks Historical Data.xlsx', engine='xlsxwriter')
+Stocks_YF.to_excel(writer, sheet_name='Historical', index=True)
+
+writer.save()
